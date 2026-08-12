@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpiderForge - Web Pentest Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🕸️ SpiderForge</h1>
+            <p>Web Pentest Automation Platform</p>
+        </header>
+        
+        <!-- Login Form -->
+        <div id="login-section" class="card">
+            <h2>Login</h2>
+            <input type="email" id="email" placeholder="Email" />
+            <input type="password" id="password" placeholder="Password" />
+            <button onclick="login()">Login</button>
+            <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+        </div>
+        
+        <!-- Register Form -->
+        <div id="register-section" class="card" style="display:none;">
+            <h2>Register</h2>
+            <input type="email" id="reg-email" placeholder="Email" />
+            <input type="password" id="reg-password" placeholder="Password" />
+            <button onclick="register()">Register</button>
+            <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+        </div>
+        
+        <!-- Dashboard -->
+        <div id="dashboard" style="display:none;">
+            <h2>Projects</h2>
+            <button onclick="showNewProject()">New Project</button>
+            
+            <div id="project-form" style="display:none;" class="card">
+                <input type="text" id="project-name" placeholder="Project Name" />
+                <input type="url" id="project-url" placeholder="Target URL" />
+                <button onclick="createProject()">Create</button>
+            </div>
+            
+            <div id="projects-list"></div>
+            
+            <div id="scan-results" class="card" style="display:none;">
+                <h3>Scan Results</h3>
+                <div id="vulnerabilities"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
