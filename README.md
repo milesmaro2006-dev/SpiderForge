@@ -1,3 +1,7 @@
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Build](https://github.com/YOUR_USERNAME/SpiderForge/actions/workflows/python-tests.yml/badge.svg)
 # 🕸️ SpiderForge - Web Pentest Automation Platform
 
 منصة متكاملة لتقييم أمان تطبيقات الويب بشكل آلي، تجمع بين الزحف الديناميكي، إدارة الجلسات المعقدة، وفحص الثغرات المتقدم.
