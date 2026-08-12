@@ -1,8 +1,10 @@
 version: '3.8'
 
 services:
+  # قاعدة بيانات PostgreSQL
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
+    container_name: spiderforge-postgres
     environment:
       POSTGRES_USER: spiderforge
       POSTGRES_PASSWORD: spiderforge123
@@ -11,49 +13,74 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spiderforge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  mongodb:
-    image: mongo:6
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
+  # Redis للـ Task Queue
   redis:
     image: redis:7-alpine
+    container_name: spiderforge-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # الـ Backend API
   backend:
-    build: ./backend
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    build: .
+    container_name: spiderforge-backend
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
-      - mongodb
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://spiderforge:spiderforge123@postgres:5432/spiderforge
-      MONGO_URL: mongodb://mongodb:27017
       REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: your-secret-key-change-in-production
+    restart: unless-stopped
 
+  # Celery Worker لتنفيذ المهام
   celery-worker:
-    build: ./backend
-    command: celery -A core.celery_app worker --loglevel=info
+    build: .
+    container_name: spiderforge-celery
+    command: celery -A celery_app worker --loglevel=info
     volumes:
       - ./backend:/app
     depends_on:
       - redis
       - postgres
-      - mongodb
     environment:
       DATABASE_URL: postgresql://spiderforge:spiderforge123@postgres:5432/spiderforge
-      MONGO_URL: mongodb://mongodb:27017
       REDIS_URL: redis://redis:6379/0
+    restart: unless-stopped
+
+  # الواجهة الأمامية
+  frontend:
+    image: nginx:alpine
+    container_name: spiderforge-frontend
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "80:80"
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:
-  mongo_data:
+  redis_data:
